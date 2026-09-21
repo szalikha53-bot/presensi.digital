@@ -3,44 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Presensi Digital</title>
+<title>Presensi Digital · QR Code</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, sans-serif; }
+  
   body {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
   }
+
   .container {
     background: #fff;
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 30px;
     max-width: 900px;
     width: 100%;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
   }
+
   h1 {
     text-align: center;
     color: #333;
     margin-bottom: 5px;
+    font-size: 26px;
   }
   .subtitle {
     text-align: center;
     color: #888;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     font-size: 14px;
   }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: #f0f2f8;
+    padding: 6px;
+    border-radius: 12px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab-btn.active {
+    background: #fff;
+    color: #667eea;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+  }
+  .tab-btn:hover:not(.active) { color: #667eea; }
+
+  .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== CLOCK ===== */
   .clock {
     text-align: center;
-    font-size: 28px;
+    font-size: 26px;
     font-weight: bold;
     color: #667eea;
     margin-bottom: 20px;
     font-variant-numeric: tabular-nums;
   }
+
+  /* ===== FORM ===== */
   form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -50,28 +97,34 @@
   form input, form select {
     padding: 12px;
     border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 14px;
-    transition: border 0.3s;
+    transition: all 0.3s;
+    font-family: inherit;
   }
   form input:focus, form select:focus {
     outline: none;
     border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
   }
   form button {
     grid-column: span 2;
     padding: 14px;
-    background: #667eea;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 10px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s;
   }
-  form button:hover { background: #5568d3; }
+  form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+  }
 
+  /* ===== STATS ===== */
   .stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -80,21 +133,21 @@
   }
   .stat-card {
     background: #f7f8fc;
-    padding: 12px;
-    border-radius: 8px;
+    padding: 14px 10px;
+    border-radius: 12px;
     text-align: center;
+    border: 1px solid #eef0f7;
+    transition: all 0.3s;
   }
-  .stat-card .num {
-    font-size: 22px;
-    font-weight: bold;
-    color: #667eea;
-  }
-  .stat-card .label {
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
-  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+  .stat-card .num { font-size: 22px; font-weight: bold; color: #667eea; }
+  .stat-card .label { font-size: 12px; color: #666; margin-top: 4px; font-weight: 500; }
+  .stat-card.hadir .num { color: #28a745; }
+  .stat-card.izin  .num { color: #f0ad4e; }
+  .stat-card.sakit .num { color: #4a90e2; }
+  .stat-card.alfa  .num { color: #dc3545; }
 
+  /* ===== ACTIONS ===== */
   .actions {
     display: flex;
     gap: 10px;
@@ -102,184 +155,675 @@
     flex-wrap: wrap;
   }
   .actions button {
-    padding: 8px 16px;
+    padding: 10px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s;
+    font-family: inherit;
   }
   .btn-export { background: #28a745; color: #fff; }
-  .btn-clear { background: #dc3545; color: #fff; }
-  .btn-export:hover { background: #218838; }
-  .btn-clear:hover { background: #c82333; }
+  .btn-clear  { background: #dc3545; color: #fff; }
+  .btn-print  { background: #667eea; color: #fff; }
+  .btn-export:hover { background: #218838; transform: translateY(-2px); }
+  .btn-clear:hover  { background: #c82333; transform: translateY(-2px); }
+  .btn-print:hover  { background: #5568d3; transform: translateY(-2px); }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  th, td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-  }
+  /* ===== TABLE ===== */
+  .table-wrapper { max-height: 320px; overflow-y: auto; border-radius: 12px; border: 1px solid #eee; }
+  .table-wrapper::-webkit-scrollbar { width: 6px; }
+  .table-wrapper::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; }
   th {
-    background: #667eea;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
     font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
   }
-  tr:hover { background: #f9f9f9; }
+  tr:hover td { background: #f9f9ff; }
   .badge {
     padding: 4px 10px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
   .badge.Hadir { background: #d4edda; color: #155724; }
   .badge.Izin  { background: #fff3cd; color: #856404; }
   .badge.Sakit { background: #cce5ff; color: #004085; }
   .badge.Alfa  { background: #f8d7da; color: #721c24; }
 
-  .empty {
-    text-align: center;
-    padding: 30px;
-    color: #aaa;
+  .empty { text-align: center; padding: 30px; color: #aaa; }
+
+  /* ===== QR GENERATOR ===== */
+  .qr-gen-card {
+    background: linear-gradient(135deg, #f7f8fc, #eef0f7);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e4f0;
   }
+  .qr-gen-card h3 {
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .qr-gen-card h3 i { color: #667eea; }
+
+  .qr-input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .qr-input-row input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s;
+    font-family: inherit;
+    background: #fff;
+  }
+  .qr-input-row input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+  }
+  .qr-input-row button {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.25s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .qr-input-row button:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(102,126,234,0.4); }
+
+  .qr-result {
+    display: none;
+    margin-top: 15px;
+    text-align: center;
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid #e0e4f0;
+  }
+  .qr-result.show { display: block; animation: fadeIn 0.35s ease; }
+  .qr-result img {
+    max-width: 180px;
+    border-radius: 10px;
+    background: #fff;
+    padding: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .qr-result .qr-name {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+  }
+  .qr-result .qr-sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .qr-result .qr-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .qr-result .qr-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+  }
+  .btn-qr-download { background: #28a745; color: #fff; }
+  .btn-qr-print    { background: #667eea; color: #fff; }
+  .btn-qr-close    { background: #f0f2f8; color: #666; }
+  .btn-qr-download:hover { background: #218838; }
+  .btn-qr-print:hover    { background: #5568d3; }
+  .btn-qr-close:hover    { background: #e0e4f0; }
+
+  /* ===== SCANNER ===== */
+  .scanner-wrapper {
+    background: #f7f8fc;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #e0e4f0;
+  }
+  .scanner-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .scanner-header i { color: #667eea; }
+
+  #qr-reader {
+    width: 100% !important;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    border: none !important;
+  }
+  #qr-reader video { width: 100% !important; height: auto !important; display: block !important; }
+  #qr-reader img[alt="Info icon"] { display: none !important; }
+  #qr-reader__dashboard_section_csr button {
+    padding: 8px 14px !important;
+    background: #667eea !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    margin: 4px !important;
+  }
+  #qr-reader__dashboard_section_csr select {
+    padding: 8px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e0e0e0 !important;
+    margin: 4px !important;
+  }
+  #qr-reader__status_span {
+    color: #333 !important;
+    font-size: 13px !important;
+  }
+
+  .scanner-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .scanner-controls button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    color: #fff;
+  }
+  .btn-start { background: linear-gradient(135deg, #28a745, #1e7e34); }
+  .btn-stop  { background: linear-gradient(135deg, #dc3545, #c82333); }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(40,167,69,0.4); }
+  .btn-stop:hover  { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(220,53,69,0.4); }
+
+  #scan-status {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  #scan-status.success { display: flex; background: #d4edda; color: #155724; border: 1px solid #b8dfc4; }
+  #scan-status.error   { display: flex; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  #scan-status.info    { display: flex; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  #scan-status.warning { display: flex; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+  /* ===== PRINT CARD (kartu QR) ===== */
+  .qr-print-card {
+    width: 300px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 16px;
+    border: 2px solid #667eea;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .qr-print-card .card-header {
+    font-size: 14px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed #e0e4f0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .qr-print-card img { width: 180px; margin: 10px auto; display: block; }
+  .qr-print-card .card-name { font-size: 16px; font-weight: 700; color: #333; margin-top: 8px; }
+  .qr-print-card .card-nis  { font-size: 12px; color: #666; margin-top: 4px; }
+  .qr-print-card .card-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 2px dashed #e0e4f0;
+    font-size: 10px;
+    color: #999;
+  }
+
+  /* ===== RESPONSIVE ===== */
   @media (max-width: 600px) {
+    body { padding: 10px; }
+    .container { padding: 18px 14px; border-radius: 16px; }
     form { grid-template-columns: 1fr; }
     form button { grid-column: span 1; }
     .stats { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 20px; }
+    .tabs { flex-direction: column; }
+    .tab-btn { font-size: 12px; padding: 8px; }
+    .qr-input-row { flex-direction: column; }
+    .qr-input-row button { width: 100%; }
+    .clock { font-size: 20px; }
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body * { visibility: hidden; }
+    .qr-print-area, .qr-print-area * { visibility: visible; }
+    .qr-print-area {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 20px;
+    }
   }
 </style>
 </head>
 <body>
+
 <div class="container">
   <h1>📋 Presensi Digital</h1>
-  <p class="subtitle">Sistem Absensi Online Sederhana</p>
+  <p class="subtitle">Sistem Absensi dengan QR Code</p>
+
   <div class="clock" id="clock">--:--:--</div>
 
-  <form id="presenceForm">
-    <input type="text" id="nama" placeholder="Nama Lengkap" required>
-    <input type="text" id="nis" placeholder="NIS / NIK / ID" required>
-    <select id="status" required>
-      <option value="">-- Pilih Keterangan --</option>
-      <option value="Hadir">Hadir</option>
-      <option value="Izin">Izin</option>
-      <option value="Sakit">Sakit</option>
-      <option value="Alfa">Alfa</option>
-    </select>
-    <input type="text" id="keterangan" placeholder="Catatan (opsional)">
-    <button type="submit">✔ Simpan Presensi</button>
-  </form>
-
-  <div class="stats">
-    <div class="stat-card"><div class="num" id="totalHadir">0</div><div class="label">Hadir</div></div>
-    <div class="stat-card"><div class="num" id="totalIzin">0</div><div class="label">Izin</div></div>
-    <div class="stat-card"><div class="num" id="totalSakit">0</div><div class="label">Sakit</div></div>
-    <div class="stat-card"><div class="num" id="totalAlfa">0</div><div class="label">Alfa</div></div>
+  <!-- ===== TABS ===== -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('manual', event)">
+      <i class="fas fa-keyboard"></i> Input Manual
+    </button>
+    <button class="tab-btn" onclick="switchTab('qr', event)">
+      <i class="fas fa-qrcode"></i> QR Code
+    </button>
+    <button class="tab-btn" onclick="switchTab('scan', event)">
+      <i class="fas fa-camera"></i> Scan Absen
+    </button>
+    <button class="tab-btn" onclick="switchTab('data', event)">
+      <i class="fas fa-list"></i> Data
+    </button>
   </div>
 
-  <div class="actions">
-    <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
-    <button class="btn-clear" onclick="clearData()">🗑 Hapus Semua</button>
+  <!-- ===== TAB: MANUAL ===== -->
+  <div class="tab-panel active" id="tab-manual">
+    <form id="presenceForm">
+      <input type="text" id="nama" placeholder="Nama Lengkap" required>
+      <input type="text" id="nis" placeholder="NIS / NIK / ID" required>
+      <select id="status" required>
+        <option value="">-- Pilih Keterangan --</option>
+        <option value="Hadir">Hadir</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+        <option value="Alfa">Alfa</option>
+      </select>
+      <input type="text" id="keterangan" placeholder="Catatan (opsional)">
+      <button type="submit"><i class="fas fa-save"></i> Simpan Presensi</button>
+    </form>
+
+    <div class="stats">
+      <div class="stat-card hadir"><div class="num" id="totalHadir">0</div><div class="label">Hadir</div></div>
+      <div class="stat-card izin"><div class="num" id="totalIzin">0</div><div class="label">Izin</div></div>
+      <div class="stat-card sakit"><div class="num" id="totalSakit">0</div><div class="label">Sakit</div></div>
+      <div class="stat-card alfa"><div class="num" id="totalAlfa">0</div><div class="label">Alfa</div></div>
+    </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>No</th><th>Nama</th><th>ID</th><th>Status</th><th>Waktu</th><th>Catatan</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      <tr><td colspan="6" class="empty">Belum ada data presensi</td></tr>
-    </tbody>
-  </table>
+  <!-- ===== TAB: QR GENERATOR ===== -->
+  <div class="tab-panel" id="tab-qr">
+    <div class="qr-gen-card">
+      <h3><i class="fas fa-qrcode"></i> Generate QR Code Peserta</h3>
+      <div class="qr-input-row">
+        <input type="text" id="qrNamaInput" placeholder="Nama Lengkap">
+        <input type="text" id="qrNisInput" placeholder="NIS / NIK">
+        <button onclick="generateQRCode()"><i class="fas fa-magic"></i> Generate</button>
+      </div>
+
+      <div class="qr-result" id="qrResult">
+        <div id="qrCodeDisplay"></div>
+        <div class="qr-name" id="qrNameDisplay"></div>
+        <div class="qr-sub" id="qrNisDisplay"></div>
+        <div class="qr-actions">
+          <button class="btn-qr-download" onclick="downloadQRCode()"><i class="fas fa-download"></i> Download</button>
+          <button class="btn-qr-print" onclick="printQRCard()"><i class="fas fa-print"></i> Cetak Kartu</button>
+          <button class="btn-qr-close" onclick="closeQRResult()"><i class="fas fa-times"></i> Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-print" onclick="printAllQRCards()"><i class="fas fa-print"></i> Cetak Semua Kartu</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: SCAN ===== -->
+  <div class="tab-panel" id="tab-scan">
+    <div class="scanner-wrapper">
+      <div class="scanner-header">
+        <i class="fas fa-camera"></i> Scan QR Code untuk Absen
+      </div>
+      <div id="qr-reader"></div>
+      <div class="scanner-controls">
+        <button class="btn-start" id="btnStartScan" onclick="startScanner()">
+          <i class="fas fa-play"></i> Mulai Scan
+        </button>
+        <button class="btn-stop" id="btnStopScan" onclick="stopScanner()" style="display:none;">
+          <i class="fas fa-stop"></i> Stop
+        </button>
+      </div>
+      <div id="scan-status"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: DATA ===== -->
+  <div class="tab-panel" id="tab-data">
+    <div class="stats">
+      <div class="stat-card hadir"><div class="num" id="totalHadir2">0</div><div class="label">Hadir</div></div>
+      <div class="stat-card izin"><div class="num" id="totalIzin2">0</div><div class="label">Izin</div></div>
+      <div class="stat-card sakit"><div class="num" id="totalSakit2">0</div><div class="label">Sakit</div></div>
+      <div class="stat-card alfa"><div class="num" id="totalAlfa2">0</div><div class="label">Alfa</div></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-export" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+      <button class="btn-clear" onclick="clearData()"><i class="fas fa-trash"></i> Hapus Semua</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th><th>Nama</th><th>ID</th><th>Status</th><th>Waktu</th><th>Catatan</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="6" class="empty">Belum ada data presensi</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
+<!-- Area untuk print QR cards -->
+<div class="qr-print-area" id="qrPrintArea" style="display:none;"></div>
+
 <script>
-  const STORAGE_KEY = 'presensi_digital';
-  let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+/* ================== STATE ================== */
+const STORAGE_KEY = 'presensi_digital_qr_v1';
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+let scanner = null;
+let isScanning = false;
+let lastScanNis = null;
+let lastScanTime = 0;
+let currentQRData = null;
 
-  // Jam real-time
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID');
+/* ================== CLOCK ================== */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ================== TABS ================== */
+function switchTab(name, e) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if (e && e.target) e.target.closest('.tab-btn').classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+
+  if (name === 'scan' && scanner) {
+    // biarkan scanner tetap aktif
   }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  // Render tabel
-  function render() {
-    const tbody = document.getElementById('tableBody');
-    if (data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty">Belum ada data presensi</td></tr>';
-    } else {
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.nama}</td>
-          <td>${item.nis}</td>
-          <td><span class="badge ${item.status}">${item.status}</span></td>
-          <td>${item.waktu}</td>
-          <td>${item.keterangan || '-'}</td>
-        </tr>
-      `).join('');
-    }
-    updateStats();
+  if (name !== 'scan' && isScanning) {
+    stopScanner();
   }
+}
 
-  // Update statistik
-  function updateStats() {
-    const count = s => data.filter(d => d.status === s).length;
-    document.getElementById('totalHadir').textContent = count('Hadir');
-    document.getElementById('totalIzin').textContent  = count('Izin');
-    document.getElementById('totalSakit').textContent = count('Sakit');
-    document.getElementById('totalAlfa').textContent  = count('Alfa');
+/* ================== RENDER TABLE ================== */
+function render() {
+  const tbody = document.getElementById('tableBody');
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Belum ada data presensi</td></tr>';
+  } else {
+    tbody.innerHTML = data.map((item, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${escapeHtml(item.nama)}</td>
+        <td>${escapeHtml(item.nis)}</td>
+        <td><span class="badge ${item.status}">
+          <i class="fas ${item.status === 'Hadir' ? 'fa-check-circle' : item.status === 'Izin' ? 'fa-clock' : item.status === 'Sakit' ? 'fa-notes-medical' : 'fa-times-circle'}"></i>
+          ${item.status}</span></td>
+        <td>${escapeHtml(item.waktu)}</td>
+        <td>${escapeHtml(item.keterangan || '-')}</td>
+      </tr>
+    `).join('');
   }
+  updateStats();
+}
 
-  // Submit form
-  document.getElementById('presenceForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const now = new Date();
-    const waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
 
-    data.push({
-      nama: document.getElementById('nama').value.trim(),
-      nis: document.getElementById('nis').value.trim(),
-      status: document.getElementById('status').value,
-      keterangan: document.getElementById('keterangan').value.trim(),
-      waktu
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    e.target.reset();
-    render();
-  });
+/* ================== STATS ================== */
+function updateStats() {
+  const count = s => data.filter(d => d.status === s).length;
+  document.getElementById('totalHadir').textContent = count('Hadir');
+  document.getElementById('totalIzin').textContent  = count('Izin');
+  document.getElementById('totalSakit').textContent = count('Sakit');
+  document.getElementById('totalAlfa').textContent  = count('Alfa');
+  document.getElementById('totalHadir2').textContent = count('Hadir');
+  document.getElementById('totalIzin2').textContent  = count('Izin');
+  document.getElementById('totalSakit2').textContent = count('Sakit');
+  document.getElementById('totalAlfa2').textContent  = count('Alfa');
+}
 
-  // Export CSV
-  function exportCSV() {
-    if (data.length === 0) return alert('Tidak ada data untuk diexport!');
-    const header = 'No,Nama,ID,Status,Waktu,Catatan\n';
-    const rows = data.map((d, i) =>
-      `${i+1},"${d.nama}","${d.nis}","${d.status}","${d.waktu}","${d.keterangan}"`
-    ).join('\n');
-    const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `presensi_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
-  }
+/* ================== SAVE ================== */
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
 
-  // Clear data
-  function clearData() {
-    if (confirm('Yakin ingin menghapus semua data presensi?')) {
-      data = [];
-      localStorage.removeItem(STORAGE_KEY);
-      render();
-    }
-  }
-
+function addPresensi(nama, nis, status, keterangan = '') {
+  const now = new Date();
+  const waktu = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID');
+  data.push({ nama, nis, status, keterangan, waktu });
+  saveData();
   render();
-</script>
-</body>
-</html>
+}
+
+/* ================== FORM SUBMIT ================== */
+document.getElementById('presenceForm').addEventListener('submit', e => {
+  e.preventDefault();
+  addPresensi(
+    document.getElementById('nama').value.trim(),
+    document.getElementById('nis').value.trim(),
+    document.getElementById('status').value,
+    document.getElementById('keterangan').value.trim()
+  );
+  e.target.reset();
+});
+
+/* ================== QR GENERATOR ================== */
+function generateQRCode() {
+  const nama = document.getElementById('qrNamaInput').value.trim();
+  const nis  = document.getElementById('qrNisInput').value.trim();
+
+  if (!nama || !nis) {
+    alert('Isi Nama dan NIS terlebih dahulu!');
+    return;
+  }
+
+  // Payload QR berisi JSON
+  const payload = JSON.stringify({ nama, nis, t: Date.now() });
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
+
+  // Simpan data untuk download/print
+  currentQRData = { nama, nis, qrUrl, payload };
+
+  const resultDiv = document.getElementById('qrResult');
+  document.getElementById('qrCodeDisplay').innerHTML = `<img src="${qrUrl}" alt="QR Code" crossorigin="anonymous">`;
+  document.getElementById('qrNameDisplay').textContent = nama;
+  document.getElementById('qrNisDisplay').textContent = 'NIS: ' + nis;
+  resultDiv.classList.add('show');
+}
+
+function closeQRResult() {
+  document.getElementById('qrResult').classList.remove('show');
+  document.getElementById('qrNamaInput').value = '';
+  document.getElementById('qrNisInput').value = '';
+  currentQRData = null;
+}
+
+function downloadQRCode() {
+  if (!currentQRData) return;
+  const a = document.createElement('a');
+  a.href = currentQRData.qrUrl;
+  a.download = `QR_${currentQRData.nis}_${currentQRData.nama.replace(/\s+/g,'_')}.png`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function printQRCard() {
+  if (!currentQRData) return;
+  const printArea = document.getElementById('qrPrintArea');
+  printArea.innerHTML = buildCardHTML(currentQRData);
+  printArea.style.display = 'flex';
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      printArea.style.display = 'none';
+      printArea.innerHTML = '';
+    }, 500);
+  }, 200);
+}
+
+function printAllQRCards() {
+  if (data.length === 0) {
+    alert('Belum ada data peserta untuk dicetak!');
+    return;
+  }
+  // Group unik berdasarkan NIS
+  const uniqueMap = {};
+  data.forEach(d => { if (!uniqueMap[d.nis]) uniqueMap[d.nis] = d; });
+  const uniqueList = Object.values(uniqueMap);
+
+  const printArea = document.getElementById('qrPrintArea');
+  printArea.innerHTML = uniqueList.map(item => {
+    const payload = JSON.stringify({ nama: item.nama, nis: item.nis });
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
+    return buildCardHTML({ nama: item.nama, nis: item.nis, qrUrl });
+  }).join('');
+  printArea.style.display = 'flex';
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      printArea.style.display = 'none';
+      printArea.innerHTML = '';
+    }, 500);
+  }, 400);
+}
+
+function buildCardHTML({ nama, nis, qrUrl }) {
+  return `
+    <div class="qr-print-card">
+      <div class="card-header">Kartu Presensi</div>
+      <img src="${qrUrl}" alt="QR ${escapeHtml(nama)}">
+      <div class="card-name">${escapeHtml(nama)}</div>
+      <div class="card-nis">NIS: ${escapeHtml(nis)}</div>
+      <div class="card-footer">Scan QR ini untuk absensi</div>
+    </div>
+  `;
+}
+
+/* ================== SCANNER ================== */
+function startScanner() {
+  if (isScanning) return;
+
+  scanner = new Html5Qrcode("qr-reader");
+  const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+  scanner.start(
+    { facingMode: "environment" },
+    config,
+    onScanSuccess,
+    () => {}
+  ).then(() => {
+    isScanning = true;
+    document.getElementById('btnStartScan').style.display = 'none';
+    document.getElementById('btnStopScan').style.display = 'inline-flex';
+    showScanStatus('Kamera aktif — arahkan ke QR Code', 'info');
+  }).catch(err => {
+    showScanStatus('Gagal akses kamera: ' + err.message, 'error');
+  });
+}
+
+function stopScanner() {
+  if (!scanner || !isScanning) return;
+  scanner.stop().then(() => {
+    scanner.clear();
+    scanner = null;
+    isScanning = false;
+    document.getElementById('btnStartScan').style.display = 'inline-flex';
+    document.getElementById('btnStopScan').style.display = 'none';
+    showScanStatus('Scanner dihentikan', 'info');
+  }).catch(() => {});
+}
+
+function onScanSuccess(decodedText) {
+  const now = Date.now();
+  // Hindari scan duplikat dalam 3 detik
+  if (lastScanNis === decodedText && now - lastScanTime < 3000)
