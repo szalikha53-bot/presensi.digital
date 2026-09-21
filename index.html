@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Presensi Digital · QR + Barcode</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+<!-- Library QR Scanner -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+<!-- ✅ LIBRARY BARCODE (WAJIB!) -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, sans-serif; }
 
@@ -31,7 +36,6 @@
   h1 { text-align: center; color: #333; margin-bottom: 5px; font-size: 26px; }
   .subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 14px; }
 
-  /* ===== TABS ===== */
   .tabs {
     display: flex;
     gap: 8px;
@@ -39,9 +43,11 @@
     background: #f0f2f8;
     padding: 6px;
     border-radius: 12px;
+    flex-wrap: wrap;
   }
   .tab-btn {
     flex: 1;
+    min-width: 110px;
     padding: 10px;
     border: none;
     background: transparent;
@@ -62,13 +68,11 @@
     color: #667eea;
     box-shadow: 0 4px 12px rgba(102,126,234,0.2);
   }
-  .tab-btn:hover:not(.active) { color: #667eea; }
 
   .tab-panel { display: none; animation: fadeIn 0.3s ease; }
   .tab-panel.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* ===== CLOCK ===== */
   .clock {
     text-align: center;
     font-size: 26px;
@@ -78,7 +82,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* ===== FORM ===== */
   form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
   form input, form select {
     padding: 12px;
@@ -108,7 +111,6 @@
   }
   form button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
 
-  /* ===== STATS ===== */
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
   .stat-card {
     background: #f7f8fc;
@@ -126,7 +128,6 @@
   .stat-card.sakit .num { color: #4a90e2; }
   .stat-card.alfa  .num { color: #dc3545; }
 
-  /* ===== ACTIONS ===== */
   .actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
   .actions button {
     padding: 10px 16px;
@@ -148,7 +149,6 @@
   .btn-clear:hover  { background: #c82333; transform: translateY(-2px); }
   .btn-print:hover  { background: #5568d3; transform: translateY(-2px); }
 
-  /* ===== TABLE ===== */
   .table-wrapper { max-height: 320px; overflow-y: auto; border-radius: 12px; border: 1px solid #eee; }
   .table-wrapper::-webkit-scrollbar { width: 6px; }
   .table-wrapper::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
@@ -181,7 +181,6 @@
   .badge.Alfa  { background: #f8d7da; color: #721c24; }
   .empty { text-align: center; padding: 30px; color: #aaa; }
 
-  /* ===== QR/BARCODE GENERATOR ===== */
   .qr-gen-card {
     background: linear-gradient(135deg, #f7f8fc, #eef0f7);
     border-radius: 16px;
@@ -199,7 +198,6 @@
   }
   .qr-gen-card h3 i { color: #667eea; }
 
-  /* Toggle QR / Barcode */
   .mode-toggle {
     display: flex;
     gap: 6px;
@@ -305,7 +303,6 @@
   .btn-qr-print:hover    { background: #5568d3; }
   .btn-qr-close:hover    { background: #e0e4f0; }
 
-  /* ===== SCANNER ===== */
   .scanner-wrapper {
     background: #f7f8fc;
     border-radius: 16px;
@@ -331,24 +328,6 @@
     border: none !important;
   }
   #qr-reader video { width: 100% !important; height: auto !important; display: block !important; }
-  #qr-reader img[alt="Info icon"] { display: none !important; }
-  #qr-reader__dashboard_section_csr button {
-    padding: 8px 14px !important;
-    background: #667eea !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    margin: 4px !important;
-  }
-  #qr-reader__dashboard_section_csr select {
-    padding: 8px !important;
-    border-radius: 8px !important;
-    border: 1px solid #e0e0e0 !important;
-    margin: 4px !important;
-  }
-  #qr-reader__status_span { color: #333 !important; font-size: 13px !important; }
 
   .scanner-controls { display: flex; gap: 10px; margin-top: 12px; }
   .scanner-controls button {
@@ -387,7 +366,6 @@
   #scan-status.info    { display: flex; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
   #scan-status.warning { display: flex; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
 
-  /* ===== PRINT CARD ===== */
   .qr-print-card {
     width: 320px;
     padding: 20px;
@@ -409,7 +387,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
   }
-  .qr-print-card img { width: 170px; margin: 8px auto; display: block; }
+  .qr-print-card img { width: 160px; margin: 6px auto; display: block; }
   .qr-print-card svg { max-width: 100%; height: 60px; margin: 4px auto; display: block; }
   .qr-print-card .card-name { font-size: 16px; font-weight: 700; color: #333; margin-top: 8px; }
   .qr-print-card .card-nis  { font-size: 12px; color: #666; margin-top: 4px; }
@@ -421,7 +399,6 @@
     color: #999;
   }
 
-  /* ===== RESPONSIVE ===== */
   @media (max-width: 600px) {
     body { padding: 10px; }
     .container { padding: 18px 14px; border-radius: 16px; }
@@ -429,14 +406,12 @@
     form button { grid-column: span 1; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     h1 { font-size: 20px; }
-    .tabs { flex-wrap: wrap; }
-    .tab-btn { font-size: 12px; padding: 8px; flex: 1 1 40%; }
+    .tab-btn { font-size: 11px; padding: 8px; min-width: 80px; }
     .qr-input-row { flex-direction: column; }
     .qr-input-row button { width: 100%; }
     .clock { font-size: 20px; }
   }
 
-  /* ===== PRINT ===== */
   @media print {
     body * { visibility: hidden; }
     .qr-print-area, .qr-print-area * { visibility: visible; }
@@ -461,23 +436,22 @@
 
   <div class="clock" id="clock">--:--:--</div>
 
-  <!-- ===== TABS ===== -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('manual', event)">
-      <i class="fas fa-keyboard"></i> Input Manual
+      <i class="fas fa-keyboard"></i> Manual
     </button>
     <button class="tab-btn" onclick="switchTab('qr', event)">
       <i class="fas fa-qrcode"></i> QR / Barcode
     </button>
     <button class="tab-btn" onclick="switchTab('scan', event)">
-      <i class="fas fa-camera"></i> Scan Absen
+      <i class="fas fa-camera"></i> Scan
     </button>
     <button class="tab-btn" onclick="switchTab('data', event)">
       <i class="fas fa-list"></i> Data
     </button>
   </div>
 
-  <!-- ===== TAB: MANUAL ===== -->
+  <!-- MANUAL -->
   <div class="tab-panel active" id="tab-manual">
     <form id="presenceForm">
       <input type="text" id="nama" placeholder="Nama Lengkap" required>
@@ -501,7 +475,7 @@
     </div>
   </div>
 
-  <!-- ===== TAB: QR / BARCODE ===== -->
+  <!-- QR/BARCODE -->
   <div class="tab-panel" id="tab-qr">
     <div class="qr-gen-card">
       <h3><i class="fas fa-magic"></i> Generate Kode Peserta</h3>
@@ -538,7 +512,7 @@
     </div>
   </div>
 
-  <!-- ===== TAB: SCAN ===== -->
+  <!-- SCAN -->
   <div class="tab-panel" id="tab-scan">
     <div class="scanner-wrapper">
       <div class="scanner-header">
@@ -557,7 +531,7 @@
     </div>
   </div>
 
-  <!-- ===== TAB: DATA ===== -->
+  <!-- DATA -->
   <div class="tab-panel" id="tab-data">
     <div class="stats">
       <div class="stat-card hadir"><div class="num" id="totalHadir2">0</div><div class="label">Hadir</div></div>
@@ -597,12 +571,11 @@ let isScanning = false;
 let lastScanCode = null;
 let lastScanTime = 0;
 let currentCodeData = null;
-let currentMode = 'qr';   // 'qr' atau 'barcode'
+let currentMode = 'qr';
 
 /* ================== CLOCK ================== */
 function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID');
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('id-ID');
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -616,7 +589,7 @@ function switchTab(name, e) {
   if (name !== 'scan' && isScanning) stopScanner();
 }
 
-/* ================== MODE TOGGLE ================== */
+/* ================== MODE ================== */
 function setMode(mode) {
   currentMode = mode;
   document.getElementById('modeQR').classList.toggle('active', mode === 'qr');
@@ -654,12 +627,14 @@ function escapeHtml(s) {
 /* ================== STATS ================== */
 function updateStats() {
   const count = s => data.filter(d => d.status === s).length;
-  ['', '2'].forEach(suffix => {
-    document.getElementById('totalHadir' + suffix).textContent = count('Hadir');
-    document.getElementById('totalIzin' + suffix).textContent  = count('Izin');
-    document.getElementById('totalSakit' + suffix).textContent = count('Sakit');
-    document.getElementById('totalAlfa' + suffix).textContent  = count('Alfa');
-  });
+  document.getElementById('totalHadir').textContent = count('Hadir');
+  document.getElementById('totalIzin').textContent  = count('Izin');
+  document.getElementById('totalSakit').textContent = count('Sakit');
+  document.getElementById('totalAlfa').textContent  = count('Alfa');
+  document.getElementById('totalHadir2').textContent = count('Hadir');
+  document.getElementById('totalIzin2').textContent  = count('Izin');
+  document.getElementById('totalSakit2').textContent = count('Sakit');
+  document.getElementById('totalAlfa2').textContent  = count('Alfa');
 }
 
 /* ================== SAVE ================== */
@@ -673,7 +648,7 @@ function addPresensi(nama, nis, status, keterangan = '') {
   render();
 }
 
-/* ================== FORM SUBMIT ================== */
+/* ================== FORM ================== */
 document.getElementById('presenceForm').addEventListener('submit', e => {
   e.preventDefault();
   addPresensi(
@@ -688,43 +663,49 @@ document.getElementById('presenceForm').addEventListener('submit', e => {
 /* ================== GENERATE QR / BARCODE ================== */
 function generateCode() {
   const nama = document.getElementById('qrNamaInput').value.trim();
-  const nis  = document.getElementById('qrNisInput').value.trim();
+  let nis  = document.getElementById('qrNisInput').value.trim();
 
   if (!nama || !nis) { alert('Isi Nama dan NIS terlebih dahulu!'); return; }
+
+  // Bersihkan NIS: hanya huruf, angka, dan tanda hubung
+  nis = nis.replace(/[^A-Za-z0-9\-]/g, '');
+  if (!nis) { alert('NIS mengandung karakter tidak valid!'); return; }
 
   const displayDiv = document.getElementById('qrCodeDisplay');
   const resultDiv  = document.getElementById('qrResult');
 
-  if (currentMode === 'qr') {
-    const payload = JSON.stringify({ nama, nis, t: Date.now() });
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
-    displayDiv.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
-    currentCodeData = { nama, nis, type: 'qr', url: qrUrl, value: payload };
-  } else {
-    // Barcode Code128 — isi cukup NIS saja
-    displayDiv.innerHTML = `<svg id="barcodeSVG"></svg>`;
-    try {
+  try {
+    if (currentMode === 'qr') {
+      const payload = JSON.stringify({ nama, nis });
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
+      displayDiv.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
+      currentCodeData = { nama, nis, type: 'qr', url: qrUrl, value: payload };
+    } else {
+      // BARCODE Code128
+      displayDiv.innerHTML = `<svg id="barcodeSVG"></svg>`;
       JsBarcode("#barcodeSVG", nis, {
         format: "CODE128",
-        width: 2,
-        height: 80,
+        width: 2.5,
+        height: 90,
         displayValue: true,
-        fontSize: 14,
-        margin: 10
+        fontSize: 16,
+        margin: 12,
+        background: "#ffffff",
+        lineColor: "#000000"
       });
       const svgEl = document.getElementById('barcodeSVG');
       const svgData = new XMLSerializer().serializeToString(svgEl);
       const barcodeDataURL = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
       currentCodeData = { nama, nis, type: 'barcode', url: barcodeDataURL, value: nis };
-    } catch (err) {
-      alert('Gagal generate barcode: ' + err.message);
-      return;
     }
-  }
 
-  document.getElementById('qrNameDisplay').textContent = nama;
-  document.getElementById('qrNisDisplay').textContent = 'NIS: ' + nis;
-  resultDiv.classList.add('show');
+    document.getElementById('qrNameDisplay').textContent = nama;
+    document.getElementById('qrNisDisplay').textContent = 'NIS: ' + nis;
+    resultDiv.classList.add('show');
+  } catch (err) {
+    console.error(err);
+    alert('Gagal generate: ' + err.message);
+  }
 }
 
 function closeQRResult() {
@@ -739,25 +720,32 @@ function downloadCode() {
   const a = document.createElement('a');
   a.href = currentCodeData.url;
   const ext = currentCodeData.type === 'qr' ? 'png' : 'svg';
-  a.download = `${currentCodeData.type.toUpperCase()}_${currentCodeData.nis}_${currentCodeData.nama.replace(/\s+/g,'_')}.${ext}`;
+  a.download = `${currentCodeData.type.toUpperCase()}_${currentCodeData.nis}.${ext}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 }
 
-function printCurrentCard() {
-  if (!currentCodeData) return;
-  const printArea = document.getElementById('qrPrintArea');
-  printArea.innerHTML = buildCardHTML(currentCodeData);
-  printArea.style.display = 'flex';
+/* ================== BUILD CARD ================== */
+function buildCardHTML({ nama, nis }) {
+  const payload = JSON.stringify({ nama, nis });
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
+  const barcodeId = 'bc_' + Math.random().toString(36).slice(2, 8);
+
+  // Setelah render, generate barcode di SVG
   setTimeout(() => {
-    window.print();
-    setTimeout(() => { printArea.style.display = 'none'; printArea.innerHTML = ''; }, 500);
-  }, 200);
-}
+    try {
+      JsBarcode("#" + barcodeId, nis, {s
+        format: "CODE128",
+        width: 2,
+        height: 60,
+        displayValue: true,
+        fontSize: 12,
+        margin: 6
+      });
+    } catch (e) { console.warn('Barcode card error:', e); }
+  }, 50);
 
-function printAllCards() {
-  if (data.length === 0) { alert('Belum ada data peserta untuk dicetak!'); return; }
-
-  // Group unik berdasarkan NIS
-  const unique
+  return `
+    <div class="qr-print-card">
+      <div class
