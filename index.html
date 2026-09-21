@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Presensi Digital · QR Code</title>
+<title>Presensi Digital · QR + Barcode</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', -apple-system, sans-serif; }
-  
+
   body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
@@ -27,18 +28,8 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.25);
   }
 
-  h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 5px;
-    font-size: 26px;
-  }
-  .subtitle {
-    text-align: center;
-    color: #888;
-    margin-bottom: 20px;
-    font-size: 14px;
-  }
+  h1 { text-align: center; color: #333; margin-bottom: 5px; font-size: 26px; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 14px; }
 
   /* ===== TABS ===== */
   .tabs {
@@ -64,6 +55,7 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
+    font-family: inherit;
   }
   .tab-btn.active {
     background: #fff;
@@ -74,7 +66,6 @@
 
   .tab-panel { display: none; animation: fadeIn 0.3s ease; }
   .tab-panel.active { display: block; }
-
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ===== CLOCK ===== */
@@ -88,12 +79,7 @@
   }
 
   /* ===== FORM ===== */
-  form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
-  }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
   form input, form select {
     padding: 12px;
     border: 2px solid #e0e0e0;
@@ -118,19 +104,12 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
+    font-family: inherit;
   }
-  form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102,126,234,0.4);
-  }
+  form button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
 
   /* ===== STATS ===== */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
   .stat-card {
     background: #f7f8fc;
     padding: 14px 10px;
@@ -148,12 +127,7 @@
   .stat-card.alfa  .num { color: #dc3545; }
 
   /* ===== ACTIONS ===== */
-  .actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-  }
+  .actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
   .actions button {
     padding: 10px 16px;
     border: none;
@@ -205,10 +179,9 @@
   .badge.Izin  { background: #fff3cd; color: #856404; }
   .badge.Sakit { background: #cce5ff; color: #004085; }
   .badge.Alfa  { background: #f8d7da; color: #721c24; }
-
   .empty { text-align: center; padding: 30px; color: #aaa; }
 
-  /* ===== QR GENERATOR ===== */
+  /* ===== QR/BARCODE GENERATOR ===== */
   .qr-gen-card {
     background: linear-gradient(135deg, #f7f8fc, #eef0f7);
     border-radius: 16px;
@@ -226,13 +199,42 @@
   }
   .qr-gen-card h3 i { color: #667eea; }
 
-  .qr-input-row {
+  /* Toggle QR / Barcode */
+  .mode-toggle {
     display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: 6px;
+    background: #fff;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    border: 1px solid #e0e4f0;
+    width: fit-content;
   }
+  .mode-toggle button {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+  }
+  .mode-toggle button.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+  }
+
+  .qr-input-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
   .qr-input-row input {
     flex: 1;
+    min-width: 140px;
     padding: 12px 14px;
     border: 2px solid #e0e0e0;
     border-radius: 10px;
@@ -274,31 +276,15 @@
     border: 1px solid #e0e4f0;
   }
   .qr-result.show { display: block; animation: fadeIn 0.35s ease; }
-  .qr-result img {
-    max-width: 180px;
+  .qr-result img, .qr-result svg {
+    max-width: 100%;
     border-radius: 10px;
     background: #fff;
     padding: 6px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   }
-  .qr-result .qr-name {
-    margin-top: 12px;
-    font-size: 14px;
-    color: #333;
-    font-weight: 600;
-  }
-  .qr-result .qr-sub {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
-  }
-  .qr-result .qr-actions {
-    margin-top: 12px;
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
+  .qr-result .qr-name { margin-top: 12px; font-size: 14px; color: #333; font-weight: 600; }
+  .qr-result .qr-sub  { font-size: 12px; color: #888; margin-top: 4px; }
+  .qr-result .qr-actions { margin-top: 12px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .qr-result .qr-actions button {
     padding: 8px 16px;
     border: none;
@@ -362,16 +348,9 @@
     border: 1px solid #e0e0e0 !important;
     margin: 4px !important;
   }
-  #qr-reader__status_span {
-    color: #333 !important;
-    font-size: 13px !important;
-  }
+  #qr-reader__status_span { color: #333 !important; font-size: 13px !important; }
 
-  .scanner-controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 12px;
-  }
+  .scanner-controls { display: flex; gap: 10px; margin-top: 12px; }
   .scanner-controls button {
     flex: 1;
     padding: 12px;
@@ -408,15 +387,17 @@
   #scan-status.info    { display: flex; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
   #scan-status.warning { display: flex; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
 
-  /* ===== PRINT CARD (kartu QR) ===== */
+  /* ===== PRINT CARD ===== */
   .qr-print-card {
-    width: 300px;
+    width: 320px;
     padding: 20px;
     background: #fff;
     border-radius: 16px;
     border: 2px solid #667eea;
     text-align: center;
     font-family: 'Segoe UI', sans-serif;
+    page-break-inside: avoid;
+    margin: 6px;
   }
   .qr-print-card .card-header {
     font-size: 14px;
@@ -428,7 +409,8 @@
     text-transform: uppercase;
     letter-spacing: 1px;
   }
-  .qr-print-card img { width: 180px; margin: 10px auto; display: block; }
+  .qr-print-card img { width: 170px; margin: 8px auto; display: block; }
+  .qr-print-card svg { max-width: 100%; height: 60px; margin: 4px auto; display: block; }
   .qr-print-card .card-name { font-size: 16px; font-weight: 700; color: #333; margin-top: 8px; }
   .qr-print-card .card-nis  { font-size: 12px; color: #666; margin-top: 4px; }
   .qr-print-card .card-footer {
@@ -447,8 +429,8 @@
     form button { grid-column: span 1; }
     .stats { grid-template-columns: repeat(2, 1fr); }
     h1 { font-size: 20px; }
-    .tabs { flex-direction: column; }
-    .tab-btn { font-size: 12px; padding: 8px; }
+    .tabs { flex-wrap: wrap; }
+    .tab-btn { font-size: 12px; padding: 8px; flex: 1 1 40%; }
     .qr-input-row { flex-direction: column; }
     .qr-input-row button { width: 100%; }
     .clock { font-size: 20px; }
@@ -464,9 +446,9 @@
       width: 100%;
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 10px;
       justify-content: center;
-      padding: 20px;
+      padding: 10px;
     }
   }
 </style>
@@ -475,7 +457,7 @@
 
 <div class="container">
   <h1>📋 Presensi Digital</h1>
-  <p class="subtitle">Sistem Absensi dengan QR Code</p>
+  <p class="subtitle">Sistem Absensi dengan QR Code & Barcode</p>
 
   <div class="clock" id="clock">--:--:--</div>
 
@@ -485,7 +467,7 @@
       <i class="fas fa-keyboard"></i> Input Manual
     </button>
     <button class="tab-btn" onclick="switchTab('qr', event)">
-      <i class="fas fa-qrcode"></i> QR Code
+      <i class="fas fa-qrcode"></i> QR / Barcode
     </button>
     <button class="tab-btn" onclick="switchTab('scan', event)">
       <i class="fas fa-camera"></i> Scan Absen
@@ -519,14 +501,24 @@
     </div>
   </div>
 
-  <!-- ===== TAB: QR GENERATOR ===== -->
+  <!-- ===== TAB: QR / BARCODE ===== -->
   <div class="tab-panel" id="tab-qr">
     <div class="qr-gen-card">
-      <h3><i class="fas fa-qrcode"></i> Generate QR Code Peserta</h3>
+      <h3><i class="fas fa-magic"></i> Generate Kode Peserta</h3>
+
+      <div class="mode-toggle">
+        <button id="modeQR" class="active" onclick="setMode('qr')">
+          <i class="fas fa-qrcode"></i> QR Code
+        </button>
+        <button id="modeBarcode" onclick="setMode('barcode')">
+          <i class="fas fa-barcode"></i> Barcode
+        </button>
+      </div>
+
       <div class="qr-input-row">
         <input type="text" id="qrNamaInput" placeholder="Nama Lengkap">
-        <input type="text" id="qrNisInput" placeholder="NIS / NIK">
-        <button onclick="generateQRCode()"><i class="fas fa-magic"></i> Generate</button>
+        <input type="text" id="qrNisInput" placeholder="NIS / NIK / ID">
+        <button onclick="generateCode()"><i class="fas fa-magic"></i> Generate</button>
       </div>
 
       <div class="qr-result" id="qrResult">
@@ -534,15 +526,15 @@
         <div class="qr-name" id="qrNameDisplay"></div>
         <div class="qr-sub" id="qrNisDisplay"></div>
         <div class="qr-actions">
-          <button class="btn-qr-download" onclick="downloadQRCode()"><i class="fas fa-download"></i> Download</button>
-          <button class="btn-qr-print" onclick="printQRCard()"><i class="fas fa-print"></i> Cetak Kartu</button>
+          <button class="btn-qr-download" onclick="downloadCode()"><i class="fas fa-download"></i> Download</button>
+          <button class="btn-qr-print" onclick="printCurrentCard()"><i class="fas fa-print"></i> Cetak Kartu</button>
           <button class="btn-qr-close" onclick="closeQRResult()"><i class="fas fa-times"></i> Tutup</button>
         </div>
       </div>
     </div>
 
     <div class="actions">
-      <button class="btn-print" onclick="printAllQRCards()"><i class="fas fa-print"></i> Cetak Semua Kartu</button>
+      <button class="btn-print" onclick="printAllCards()"><i class="fas fa-print"></i> Cetak Semua Kartu</button>
     </div>
   </div>
 
@@ -550,7 +542,7 @@
   <div class="tab-panel" id="tab-scan">
     <div class="scanner-wrapper">
       <div class="scanner-header">
-        <i class="fas fa-camera"></i> Scan QR Code untuk Absen
+        <i class="fas fa-camera"></i> Scan QR / Barcode untuk Absen
       </div>
       <div id="qr-reader"></div>
       <div class="scanner-controls">
@@ -594,7 +586,6 @@
   </div>
 </div>
 
-<!-- Area untuk print QR cards -->
 <div class="qr-print-area" id="qrPrintArea" style="display:none;"></div>
 
 <script>
@@ -603,9 +594,10 @@ const STORAGE_KEY = 'presensi_digital_qr_v1';
 let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 let scanner = null;
 let isScanning = false;
-let lastScanNis = null;
+let lastScanCode = null;
 let lastScanTime = 0;
-let currentQRData = null;
+let currentCodeData = null;
+let currentMode = 'qr';   // 'qr' atau 'barcode'
 
 /* ================== CLOCK ================== */
 function updateClock() {
@@ -621,13 +613,15 @@ function switchTab(name, e) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   if (e && e.target) e.target.closest('.tab-btn').classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
+  if (name !== 'scan' && isScanning) stopScanner();
+}
 
-  if (name === 'scan' && scanner) {
-    // biarkan scanner tetap aktif
-  }
-  if (name !== 'scan' && isScanning) {
-    stopScanner();
-  }
+/* ================== MODE TOGGLE ================== */
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeQR').classList.toggle('active', mode === 'qr');
+  document.getElementById('modeBarcode').classList.toggle('active', mode === 'barcode');
+  document.getElementById('qrResult').classList.remove('show');
 }
 
 /* ================== RENDER TABLE ================== */
@@ -660,20 +654,16 @@ function escapeHtml(s) {
 /* ================== STATS ================== */
 function updateStats() {
   const count = s => data.filter(d => d.status === s).length;
-  document.getElementById('totalHadir').textContent = count('Hadir');
-  document.getElementById('totalIzin').textContent  = count('Izin');
-  document.getElementById('totalSakit').textContent = count('Sakit');
-  document.getElementById('totalAlfa').textContent  = count('Alfa');
-  document.getElementById('totalHadir2').textContent = count('Hadir');
-  document.getElementById('totalIzin2').textContent  = count('Izin');
-  document.getElementById('totalSakit2').textContent = count('Sakit');
-  document.getElementById('totalAlfa2').textContent  = count('Alfa');
+  ['', '2'].forEach(suffix => {
+    document.getElementById('totalHadir' + suffix).textContent = count('Hadir');
+    document.getElementById('totalIzin' + suffix).textContent  = count('Izin');
+    document.getElementById('totalSakit' + suffix).textContent = count('Sakit');
+    document.getElementById('totalAlfa' + suffix).textContent  = count('Alfa');
+  });
 }
 
 /* ================== SAVE ================== */
-function saveData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
 
 function addPresensi(nama, nis, status, keterangan = '') {
   const now = new Date();
@@ -695,25 +685,43 @@ document.getElementById('presenceForm').addEventListener('submit', e => {
   e.target.reset();
 });
 
-/* ================== QR GENERATOR ================== */
-function generateQRCode() {
+/* ================== GENERATE QR / BARCODE ================== */
+function generateCode() {
   const nama = document.getElementById('qrNamaInput').value.trim();
   const nis  = document.getElementById('qrNisInput').value.trim();
 
-  if (!nama || !nis) {
-    alert('Isi Nama dan NIS terlebih dahulu!');
-    return;
+  if (!nama || !nis) { alert('Isi Nama dan NIS terlebih dahulu!'); return; }
+
+  const displayDiv = document.getElementById('qrCodeDisplay');
+  const resultDiv  = document.getElementById('qrResult');
+
+  if (currentMode === 'qr') {
+    const payload = JSON.stringify({ nama, nis, t: Date.now() });
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
+    displayDiv.innerHTML = `<img src="${qrUrl}" alt="QR Code">`;
+    currentCodeData = { nama, nis, type: 'qr', url: qrUrl, value: payload };
+  } else {
+    // Barcode Code128 — isi cukup NIS saja
+    displayDiv.innerHTML = `<svg id="barcodeSVG"></svg>`;
+    try {
+      JsBarcode("#barcodeSVG", nis, {
+        format: "CODE128",
+        width: 2,
+        height: 80,
+        displayValue: true,
+        fontSize: 14,
+        margin: 10
+      });
+      const svgEl = document.getElementById('barcodeSVG');
+      const svgData = new XMLSerializer().serializeToString(svgEl);
+      const barcodeDataURL = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+      currentCodeData = { nama, nis, type: 'barcode', url: barcodeDataURL, value: nis };
+    } catch (err) {
+      alert('Gagal generate barcode: ' + err.message);
+      return;
+    }
   }
 
-  // Payload QR berisi JSON
-  const payload = JSON.stringify({ nama, nis, t: Date.now() });
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
-
-  // Simpan data untuk download/print
-  currentQRData = { nama, nis, qrUrl, payload };
-
-  const resultDiv = document.getElementById('qrResult');
-  document.getElementById('qrCodeDisplay').innerHTML = `<img src="${qrUrl}" alt="QR Code" crossorigin="anonymous">`;
   document.getElementById('qrNameDisplay').textContent = nama;
   document.getElementById('qrNisDisplay').textContent = 'NIS: ' + nis;
   resultDiv.classList.add('show');
@@ -723,107 +731,33 @@ function closeQRResult() {
   document.getElementById('qrResult').classList.remove('show');
   document.getElementById('qrNamaInput').value = '';
   document.getElementById('qrNisInput').value = '';
-  currentQRData = null;
+  currentCodeData = null;
 }
 
-function downloadQRCode() {
-  if (!currentQRData) return;
+function downloadCode() {
+  if (!currentCodeData) return;
   const a = document.createElement('a');
-  a.href = currentQRData.qrUrl;
-  a.download = `QR_${currentQRData.nis}_${currentQRData.nama.replace(/\s+/g,'_')}.png`;
+  a.href = currentCodeData.url;
+  const ext = currentCodeData.type === 'qr' ? 'png' : 'svg';
+  a.download = `${currentCodeData.type.toUpperCase()}_${currentCodeData.nis}_${currentCodeData.nama.replace(/\s+/g,'_')}.${ext}`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
 }
 
-function printQRCard() {
-  if (!currentQRData) return;
+function printCurrentCard() {
+  if (!currentCodeData) return;
   const printArea = document.getElementById('qrPrintArea');
-  printArea.innerHTML = buildCardHTML(currentQRData);
+  printArea.innerHTML = buildCardHTML(currentCodeData);
   printArea.style.display = 'flex';
   setTimeout(() => {
     window.print();
-    setTimeout(() => {
-      printArea.style.display = 'none';
-      printArea.innerHTML = '';
-    }, 500);
+    setTimeout(() => { printArea.style.display = 'none'; printArea.innerHTML = ''; }, 500);
   }, 200);
 }
 
-function printAllQRCards() {
-  if (data.length === 0) {
-    alert('Belum ada data peserta untuk dicetak!');
-    return;
-  }
+function printAllCards() {
+  if (data.length === 0) { alert('Belum ada data peserta untuk dicetak!'); return; }
+
   // Group unik berdasarkan NIS
-  const uniqueMap = {};
-  data.forEach(d => { if (!uniqueMap[d.nis]) uniqueMap[d.nis] = d; });
-  const uniqueList = Object.values(uniqueMap);
-
-  const printArea = document.getElementById('qrPrintArea');
-  printArea.innerHTML = uniqueList.map(item => {
-    const payload = JSON.stringify({ nama: item.nama, nis: item.nis });
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(payload)}`;
-    return buildCardHTML({ nama: item.nama, nis: item.nis, qrUrl });
-  }).join('');
-  printArea.style.display = 'flex';
-
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => {
-      printArea.style.display = 'none';
-      printArea.innerHTML = '';
-    }, 500);
-  }, 400);
-}
-
-function buildCardHTML({ nama, nis, qrUrl }) {
-  return `
-    <div class="qr-print-card">
-      <div class="card-header">Kartu Presensi</div>
-      <img src="${qrUrl}" alt="QR ${escapeHtml(nama)}">
-      <div class="card-name">${escapeHtml(nama)}</div>
-      <div class="card-nis">NIS: ${escapeHtml(nis)}</div>
-      <div class="card-footer">Scan QR ini untuk absensi</div>
-    </div>
-  `;
-}
-
-/* ================== SCANNER ================== */
-function startScanner() {
-  if (isScanning) return;
-
-  scanner = new Html5Qrcode("qr-reader");
-  const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-  scanner.start(
-    { facingMode: "environment" },
-    config,
-    onScanSuccess,
-    () => {}
-  ).then(() => {
-    isScanning = true;
-    document.getElementById('btnStartScan').style.display = 'none';
-    document.getElementById('btnStopScan').style.display = 'inline-flex';
-    showScanStatus('Kamera aktif — arahkan ke QR Code', 'info');
-  }).catch(err => {
-    showScanStatus('Gagal akses kamera: ' + err.message, 'error');
-  });
-}
-
-function stopScanner() {
-  if (!scanner || !isScanning) return;
-  scanner.stop().then(() => {
-    scanner.clear();
-    scanner = null;
-    isScanning = false;
-    document.getElementById('btnStartScan').style.display = 'inline-flex';
-    document.getElementById('btnStopScan').style.display = 'none';
-    showScanStatus('Scanner dihentikan', 'info');
-  }).catch(() => {});
-}
-
-function onScanSuccess(decodedText) {
-  const now = Date.now();
-  // Hindari scan duplikat dalam 3 detik
-  if (lastScanNis === decodedText && now - lastScanTime < 3000)
+  const unique
